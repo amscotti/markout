@@ -1,0 +1,26 @@
+name: markout
+version: 0.1.0
+
+authors:
+  - Anthony Scotti <anthony.m.scotti@gmail.com>
+
+crystal: '>= 1.10.0'
+
+license: MIT
+
+repository: https://github.com/amscotti/markout
+
+description: |
+  Convert HTML to clean, readable Markdown in Crystal.
+  Features configurable output styles, table support, and
+  comprehensive handling of common HTML elements.
+
+dependencies:
+  lexbor:
+    github: kostya/lexbor
+    version: "~> 3.1"
+
+development_dependencies:
+  ameba:
+    github: crystal-ameba/ameba
+    version: "~> 1.5"

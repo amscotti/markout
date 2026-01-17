@@ -1,0 +1,19 @@
+require "../spec_helper"
+
+describe Markout::Handlers::TablesHandler do
+  it "converts simple table" do
+    html = "<table><tr><td>A</td><td>B</td></tr><tr><td>1</td><td>2</td></tr></table>"
+    result = convert(html)
+    result.should contain "| A | B |"
+    result.should contain "|---|---|"
+    result.should contain "| 1 | 2 |"
+  end
+
+  it "converts table with headers" do
+    html = "<table><thead><tr><th>H1</th><th>H2</th></tr></thead><tbody><tr><td>D1</td><td>D2</td></tr></tbody></table>"
+    result = convert(html)
+    result.should contain "| H1 | H2 |"
+    result.should contain "|---|---|"
+    result.should contain "| D1 | D2 |"
+  end
+end

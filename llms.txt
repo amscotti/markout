@@ -1,0 +1,218 @@
+# Markout
+
+> A Crystal library for converting HTML to clean, readable Markdown. Optimized for LLM data preparation, RAG pipelines, and content extraction. 25-40x faster than Python alternatives.
+
+Markout converts HTML documents into well-formatted Markdown using a handler registry pattern. Each HTML element type has a dedicated handler class that processes it. The library automatically strips non-content elements (scripts, styles, navigation) making output ideal for LLM consumption.
+
+## Quick Start
+
+```crystal
+require "markout"
+
+# Basic conversion
+markdown = Markout.convert("<h1>Title</h1><p>Content</p>")
+# => "# Title\n\nContent"
+
+# With options
+options = Markout::Options.new
+options.heading_style = Markout::Options::HeadingStyle::Setext
+markdown = Markout.convert(html, options)
+
+# Reusable converter
+converter = Markout::Converter.new(options)
+result = converter.convert(html)
+```
+
+## Architecture
+
+The conversion flow:
+1. HTML is parsed into a DOM tree using the Lexbor library
+2. `Converter` recursively walks the tree, delegating to appropriate handlers
+3. `Context` tracks state during conversion (nesting depth, list state, references)
+4. Each handler returns the Markdown string for its element
+
+Key components:
+- `src/markout.cr` - Public API entry point with `convert` overloads
+- `src/markout/options.cr` - `Options` class with all configuration settings
+- `src/markout/context.cr` - `Context` class for tracking conversion state
+- `src/markout/converter.cr` - `Converter` class that orchestrates the conversion
+- `src/markout/handler.cr` - `Handler` module (abstract interface) and `Handlers` registry
+
+## Handler Pattern
+
+Handlers implement the `Handler` module with two methods:
+- `handles : Array(Symbol)` - declares which HTML tags this handler processes
+- `convert(node, ctx, converter) : String` - performs the conversion
+
+Example handler:
+
+```crystal
+module Markout::Handlers
+  class HeadingsHandler
+    include Handler
+
+    def handles : Array(Symbol)
+      [:h1, :h2, :h3, :h4, :h5, :h6]
+    end
+
+    def convert(node : Lexbor::Node, ctx : Context, converter : Converter) : String
+      level = heading_level(node)
+      text = converter.process_children(node, ctx).strip
+      "#" * level + " #{text}"
+    end
+  end
+
+  Handlers.register(HeadingsHandler.new)
+end
+```
+
+Available handlers in `src/markout/_handlers/`:
+- `text.cr` - Text nodes (`:_text`)
+- `headings.cr` - H1-H6 elements
+- `paragraphs.cr` - P tags and BR line breaks
+- `emphasis.cr` - strong, b, em, i formatting
+- `links.cr` - Anchor tags with inline/referenced styles
+- `images.cr` - Image tags
+- `code.cr` - Inline code and fenced code blocks
+- `horizontal_rules.cr` - HR elements
+- `lists.cr` - UL, OL, LI elements with nesting support
+- `blockquotes.cr` - Blockquote elements with nesting
+- `tables.cr` - Table, TR, TH, TD elements
+- `strikethrough.cr` - DEL, S, STRIKE elements
+- `strip.cr` - Removes non-content elements (script, style, nav, aside, header, footer, form elements)
+
+## Configuration Options
+
+All options are properties on `Markout::Options`:
+
+```crystal
+# Heading style
+property heading_style : HeadingStyle = HeadingStyle::ATX  # or Setext
+
+# List formatting
+property bullet_char : Char = '-'      # or '*'
+property list_indent : Int32 = 2
+
+# Emphasis formatting
+property emphasis_char : Char = '*'    # or '_'
+property strong_char : String = "**"   # or "__"
+
+# Code formatting
+property code_fence : String = "```"   # or "~~~"
+
+# Horizontal rules
+property hr_style : String = "---"     # or "***" or "___"
+
+# Link handling
+property link_style : LinkStyle = LinkStyle::Inline  # or Referenced
+property autolinks : Bool = true       # Use <url> when text matches href
+property ignore_links : Bool = false   # Strip link formatting, keep text
+property default_link_title : Bool = false
+
+# Image handling
+property ignore_images : Bool = false
+property images_as_html : Bool = false  # Keep <img> as raw HTML
+
+# Table handling
+property ignore_tables : Bool = false
+property tables_as_html : Bool = false  # Keep tables as raw HTML
+
+# Content filtering
+property strip_tags : Array(String) = [] of String
+property convert_only : Array(String)? = nil
+
+# Whitespace
+property strip_document : Bool = true   # Trim leading/trailing whitespace
+property newline_style : NewlineStyle = NewlineStyle::Spaces  # or Backslash
+property wrap : Bool = false
+property wrap_width : Int32 = 80
+property single_line_break : Bool = false
+```
+
+## Adding a New Handler
+
+1. Create a file in `src/markout/_handlers/`
+2. Define a class inside `module Markout::Handlers` that includes `Handler`
+3. Implement `handles` returning array of tag symbols
+4. Implement `convert` method
+5. Call `Handlers.register(YourHandler.new)` at the bottom
+
+Template:
+
+```crystal
+module Markout::Handlers
+  class MyHandler
+    include Handler
+
+    def handles : Array(Symbol)
+      [:mytag]
+    end
+
+    def convert(node : Lexbor::Node, ctx : Context, converter : Converter) : String
+      # Access child content
+      content = converter.process_children(node, ctx)
+
+      # Access options
+      converter.options.some_option
+
+      # Access/modify context state
+      ctx.some_state
+
+      # Return markdown string
+      "formatted #{content}"
+    end
+  end
+
+  Handlers.register(MyHandler.new)
+end
+```
+
+## Context State
+
+The `Context` class tracks:
+- `blockquote_depth : Int32` - Current blockquote nesting level
+- `in_code_block? : Bool` - Whether inside a pre/code block
+- `in_link? : Bool` - Whether inside a link
+- `list_depth : Int32` - Current list nesting depth
+- `current_list_type : Symbol?` - :ul or :ol
+- `references : Hash(Int32, Reference)` - For reference-style links
+
+Methods:
+- `enter_list(type, start_index)` / `exit_list` - Manage list state
+- `next_list_index : Int32` - Get and increment ordered list counter
+- `push_blockquote` / `pop_blockquote` - Manage blockquote depth
+- `add_reference(url, title) : Int32` - Add reference link, returns ID
+
+## Build Commands
+
+```bash
+shards install          # Install dependencies
+crystal spec            # Run tests
+crystal tool format     # Format code
+bin/ameba               # Run linter
+crystal docs            # Generate documentation
+```
+
+## Performance Characteristics
+
+Benchmarks vs Python markdownify on 210KB Wikipedia HTML:
+- Markout: 2.2ms, 47KB output
+- markdownify: 61ms, 65KB output
+- Result: 28x faster, 28% smaller output
+
+The smaller output is due to the strip handler removing navigation, sidebars, and UI elements that aren't article content.
+
+## Code Style
+
+- 2-space indentation
+- UTF-8 encoding, LF line endings
+- Use `property?` for boolean properties (Crystal convention)
+- Documentation comments on all public types and methods
+- Crystal >= 1.10.0 required
+
+## Documentation
+
+- [README.md](README.md): Overview and usage examples
+- [CLAUDE.md](CLAUDE.md): AI assistant guidance for working with codebase
+- [llms.txt](llms.txt): This file - comprehensive LLM reference
+

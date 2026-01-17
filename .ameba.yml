@@ -1,0 +1,36 @@
+# Ameba configuration for Markout
+
+# Sources to lint
+Globs:
+  - "**/*.cr"
+
+# Exclude lib directory
+Excluded:
+  - lib
+
+# Rule configuration
+Naming/FileName:
+  Enabled: true
+
+Naming/TypeNames:
+  Enabled: true
+
+Style/Documentation:
+  Enabled: true
+
+# Line length limit (Crystal convention)
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Performance/AnyInsteadOfUnion:
+  Enabled: false
+
+# Disable some rules for MVP development
+Lint/Shadowing:
+  Enabled: true
+
+Lint/UnusedArgument:
+  Enabled: true
+
+Lint/UselessAssign:
+  Enabled: true
