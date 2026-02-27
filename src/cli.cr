@@ -153,7 +153,6 @@ module Markout
         end
 
         parser.unknown_args do |args|
-          # ameba:disable Style/GuardClause - Sequential conditionals are more readable here
           if args.size > 1
             raise OptionParser::InvalidOption.new("Too many arguments: #{args.join(", ")}")
           elsif args.size == 1
