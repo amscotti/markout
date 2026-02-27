@@ -1,42 +1,33 @@
-# Build stage
-FROM crystallang/crystal:latest AS builder
+# Build stage - Alpine with Crystal
+FROM crystallang/crystal:latest-alpine AS builder
 
-WORKDIR /build
+WORKDIR /app
 
 # Install build dependencies for lexbor
-RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache cmake make gcc g++ git
 
-# Install dependencies
+# Copy dependency files first for better caching
 COPY shard.yml shard.lock ./
 RUN shards install --production
 
-# Update ldconfig to find lexbor library
-RUN echo "/build/lib/lexbor/src/ext/lexbor-c/build" > /etc/ld.so.conf.d/lexbor.conf && ldconfig
-
 # Copy source code
-COPY . .
+COPY src/ src/
 
-# Build binary using shared library instead of static
-# The static library has linking issues, use shared library with proper rpath
-RUN crystal build src/markout_cli.cr -o markout --release --no-debug \
-    --link-flags "-Wl,-rpath,/build/lib/lexbor/src/ext/lexbor-c/build -L/build/lib/lexbor/src/ext/lexbor-c/build -llexbor"
+# Build fully static binary
+RUN crystal build src/markout_cli.cr -o markout --release --static --no-debug && \
+    strip markout
 
-# Runtime stage - minimal debian image
-FROM debian:bookworm-slim
+# Runtime stage - Scratch (completely empty)
+FROM scratch
 
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+# Copy CA certificates for HTTPS support (needed if fetching URLs)
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Copy binary from builder
-COPY --from=builder /build/markout /usr/local/bin/markout
+COPY --from=builder /app/markout /markout
 
-# Copy shared library and update ldconfig
-COPY --from=builder /build/lib/lexbor/src/ext/lexbor-c/build/liblexbor.so* /usr/local/lib/
-RUN ldconfig
+# Use non-root user (numeric ID since Scratch has no /etc/passwd)
+USER 65534:65534
 
-# Create non-root user
-RUN useradd -m -s /bin/sh markout
-
-USER markout
-
-ENTRYPOINT ["markout"]
+ENTRYPOINT ["/markout"]
 CMD ["--help"]
