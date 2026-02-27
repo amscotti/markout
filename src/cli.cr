@@ -44,6 +44,9 @@ module Markout
         return EXIT_INVALID
       end
 
+      # Handle explicit stdin request ("-") when no input file set
+      @input_file = "-" if @input_file.nil? && @args.includes?("-")
+
       # Show help if requested
       if @show_help
         @output.puts parser
@@ -66,7 +69,7 @@ module Markout
       end
 
       if html.nil?
-        @error.puts "Error: No input provided. Provide a file or pipe HTML via stdin."
+        @error.puts "Error: No input provided. Provide a file or use '-' for stdin."
         @error.puts
         @error.puts parser
         return EXIT_INVALID
@@ -90,8 +93,12 @@ module Markout
         parser.banner = <<-BANNER
           markout #{Markout::VERSION} - Convert HTML to Markdown
 
-          Usage: markout [options] [file]
-                 echo "<h1>Hello</h1>" | markout [options]
+          Usage: markout [options] [file|-]
+                 cat file.html | markout [options] -
+
+          Arguments:
+            file    Input HTML file (default: read from stdin)
+            -       Read HTML from stdin explicitly
 
           Options:
           BANNER
@@ -164,19 +171,24 @@ module Markout
 
     private def read_input : String?
       if input_file = @input_file
-        # File argument takes precedence
-        begin
-          File.read(input_file)
-        rescue ex : File::NotFoundError
-          raise ex
-        rescue ex : IO::Error
-          @error.puts "Error: Cannot read file - #{ex.message}"
-          nil
+        if input_file == "-"
+          # Explicit stdin request
+          content = @input.gets_to_end
+          content.empty? ? nil : content
+        else
+          # Read from file
+          begin
+            File.read(input_file)
+          rescue ex : File::NotFoundError
+            raise ex
+          rescue ex : IO::Error
+            @error.puts "Error: Cannot read file - #{ex.message}"
+            nil
+          end
         end
       else
-        # Try to read from stdin
-        content = @input.gets_to_end
-        content.empty? ? nil : content
+        # No input provided
+        nil
       end
     end
 

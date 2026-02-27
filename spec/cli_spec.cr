@@ -8,7 +8,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.strip.should eq("# Hello")
@@ -40,7 +40,7 @@ describe Markout::CLI do
       error = IO::Memory.new
 
       # Simulate a tty (no piped input) with no file argument
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(2)
       error.to_s.should contain("No input provided")
@@ -53,7 +53,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.strip.should eq("## Title")
@@ -67,7 +67,7 @@ describe Markout::CLI do
       tempfile = File.tempname("output", ".md")
 
       begin
-        exit_code = Markout::CLI.run(["-o", tempfile], input, output, error)
+        exit_code = Markout::CLI.run(["-", "-o", tempfile], input, output, error)
 
         exit_code.should eq(0)
         output.to_s.should be_empty
@@ -85,7 +85,7 @@ describe Markout::CLI do
       tempfile = File.tempname("output", ".md")
 
       begin
-        exit_code = Markout::CLI.run(["--output", tempfile], input, output, error)
+        exit_code = Markout::CLI.run(["-", "--output", tempfile], input, output, error)
 
         exit_code.should eq(0)
         File.read(tempfile).strip.should eq("### File Output")
@@ -101,7 +101,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run(["--heading-style=setext"], input, output, error)
+      exit_code = Markout::CLI.run(["-", "--heading-style=setext"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.should contain("Setext")
@@ -113,7 +113,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run(["--bullet-char=*"], input, output, error)
+      exit_code = Markout::CLI.run(["-", "--bullet-char=*"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.strip.should eq("* Item")
@@ -124,7 +124,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run(["--link-style=referenced"], input, output, error)
+      exit_code = Markout::CLI.run(["-", "--link-style=referenced"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.should match(/\[Link\]\[\d+\]/)
@@ -137,7 +137,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run(["--wrap", "--wrap-width=40"], input, output, error)
+      exit_code = Markout::CLI.run(["-", "--wrap", "--wrap-width=40"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -269,7 +269,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -287,7 +287,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -307,7 +307,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -321,7 +321,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s.strip
@@ -340,7 +340,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -357,7 +357,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       # Empty input returns exit code 2 (no input provided)
       exit_code.should eq(2)
@@ -368,7 +368,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       # Whitespace is valid but produces empty output
       exit_code.should eq(0)
@@ -379,7 +379,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       result = output.to_s
@@ -392,7 +392,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
       output.to_s.should contain("Deep content")
@@ -407,7 +407,7 @@ describe Markout::CLI do
 
       begin
         # Test with both short and long form
-        exit_code = Markout::CLI.run(["-o", tempfile, "--output", tempfile], input, output, error)
+        exit_code = Markout::CLI.run(["-", "-o", tempfile, "--output", tempfile], input, output, error)
 
         # Should handle gracefully - produces valid output
         exit_code.should eq(0)
@@ -424,7 +424,7 @@ describe Markout::CLI do
       output = IO::Memory.new
       error = IO::Memory.new
 
-      exit_code = Markout::CLI.run([] of String, input, output, error)
+      exit_code = Markout::CLI.run(["-"], input, output, error)
 
       exit_code.should eq(0)
     end
