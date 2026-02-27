@@ -1,4 +1,8 @@
 module Markout::Handlers
+  # Handler for text nodes.
+  #
+  # Processes text content from HTML elements.
+  # Normalizes whitespace (except in code blocks where text is preserved).
   class TextHandler
     include Handler
 

@@ -1,5 +1,12 @@
 module Markout
   module Handlers
+    # Handler for paragraph and line break elements.
+    #
+    # Converts HTML paragraph elements to Markdown:
+    # - <p> → text with trailing newlines
+    # - <br> → line break (two spaces + \n or backslash + \n based on options)
+    #
+    # Respects the `newline_style` option for <br> elements.
     class ParagraphsHandler
       include Handler
 

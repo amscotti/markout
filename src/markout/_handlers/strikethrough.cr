@@ -1,4 +1,8 @@
 module Markout::Handlers
+  # Handler for strikethrough elements.
+  #
+  # Converts HTML s, del, and strike elements to Markdown strikethrough.
+  # Default format is ~~text~~ but respects strikethrough_char option.
   class StrikethroughHandler
     include Handler
 

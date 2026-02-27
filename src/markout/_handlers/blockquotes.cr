@@ -1,4 +1,8 @@
 module Markout::Handlers
+  # Handler for blockquote elements.
+  #
+  # Converts HTML blockquote elements to Markdown format with ">" prefix.
+  # Handles nested blockquotes by tracking depth in context.
   class BlockquotesHandler
     include Handler
 

@@ -1,5 +1,10 @@
 module Markout
   module Handlers
+    # Handler for anchor/link elements.
+    #
+    # Converts HTML a elements to Markdown links.
+    # Supports inline and referenced link styles.
+    # Respects ignore_links? option.
     class LinksHandler
       include Handler
 

@@ -1,0 +1,170 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  build-linux-amd64:
+    name: Build Linux (AMD64)
+    runs-on: ubuntu-latest
+    container:
+      image: crystallang/crystal:latest-alpine
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: shards install --production
+
+      - name: Build static binary
+        run: |
+          crystal build src/markout_cli.cr -o markout --release --static --no-debug
+          strip markout
+
+      - name: Package binary
+        run: |
+          tar -czvf markout-linux-amd64.tar.gz markout LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markout-linux-amd64
+          path: markout-linux-amd64.tar.gz
+
+  build-linux-arm64:
+    name: Build Linux (ARM64)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - name: Build in ARM64 container
+        run: |
+          docker run --rm --platform linux/arm64 \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            crystallang/crystal:latest-alpine \
+            sh -c "shards install --production && crystal build src/markout_cli.cr -o markout --release --static --no-debug"
+
+      - name: Package binary
+        run: |
+          tar -czvf markout-linux-arm64.tar.gz markout LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markout-linux-arm64
+          path: markout-linux-arm64.tar.gz
+
+  build-macos-amd64:
+    name: Build macOS (Intel)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: Install dependencies
+        run: shards install --production
+
+      - name: Build binary
+        run: crystal build src/markout_cli.cr -o markout --release --no-debug
+
+      - name: Package binary
+        run: |
+          tar -czvf markout-macos-amd64.tar.gz markout LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markout-macos-amd64
+          path: markout-macos-amd64.tar.gz
+
+  build-macos-arm64:
+    name: Build macOS (Apple Silicon)
+    runs-on: macos-14
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: Install dependencies
+        run: shards install --production
+
+      - name: Build binary
+        run: crystal build src/markout_cli.cr -o markout --release --no-debug
+
+      - name: Package binary
+        run: |
+          tar -czvf markout-macos-arm64.tar.gz markout LICENSE README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markout-macos-arm64
+          path: markout-macos-arm64.tar.gz
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Crystal
+        uses: crystal-lang/install-crystal@v1
+
+      - name: Install dependencies
+        run: shards install --production
+
+      - name: Build binary
+        run: crystal build src/markout_cli.cr -o markout.exe --release --no-debug
+
+      - name: Package binary
+        run: |
+          Compress-Archive -Path markout.exe,LICENSE,README.md -DestinationPath markout-windows-amd64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markout-windows-amd64
+          path: markout-windows-amd64.zip
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-linux-amd64, build-linux-arm64, build-macos-amd64, build-macos-arm64, build-windows]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/markout-linux-amd64/markout-linux-amd64.tar.gz
+            artifacts/markout-linux-arm64/markout-linux-arm64.tar.gz
+            artifacts/markout-macos-amd64/markout-macos-amd64.tar.gz
+            artifacts/markout-macos-arm64/markout-macos-arm64.tar.gz
+            artifacts/markout-windows-amd64/markout-windows-amd64.zip

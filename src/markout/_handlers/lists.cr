@@ -1,4 +1,8 @@
 module Markout::Handlers
+  # Handler for list elements (unordered and ordered).
+  #
+  # Converts HTML ul, ol, and li elements to Markdown lists.
+  # Supports nested lists and respects bullet_char option.
   class ListsHandler
     include Handler
 

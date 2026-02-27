@@ -1,5 +1,12 @@
 module Markout
   module Handlers
+    # Handler for heading elements (h1-h6).
+    #
+    # Converts HTML headings to Markdown format:
+    # - ATX style: # Heading, ## Heading, etc.
+    # - Setext style: underline with === (h1) or --- (h2)
+    #
+    # Respects the `heading_style` option. Setext only applies to h1/h2.
     class HeadingsHandler
       include Handler
 

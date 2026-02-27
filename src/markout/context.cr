@@ -64,14 +64,12 @@ module Markout
 
     # Check if header is printed for current table
     def current_table_header_printed? : Bool
-      # ameba:disable Style/VerboseBlock
-      @table_stack.last?.try { |state| state.header_printed? } || false
+      @table_stack.last?.try(&.header_printed?) || false
     end
 
     # Set header printed for current table
     def table_header_printed=(val : Bool)
-      # ameba:disable Style/VerboseBlock
-      @table_stack.last?.try { |state| state.header_printed = val }
+      @table_stack.last?.try(&.header_printed=(val))
     end
 
     # Enter a new list context
@@ -91,8 +89,7 @@ module Markout
 
     # Get current list type (:ul, :ol, or nil)
     def current_list_type : Symbol?
-      # ameba:disable Style/VerboseBlock
-      @list_stack.last?.try { |state| state.type }
+      @list_stack.last?.try(&.type)
     end
 
     # Get and increment current list index (for ordered lists)

@@ -1,8 +1,39 @@
 # Markout
 
-> A Crystal library for converting HTML to clean, readable Markdown. Optimized for LLM data preparation, RAG pipelines, and content extraction. 25-40x faster than Python alternatives.
+> A Crystal library and CLI tool for converting HTML to clean, readable Markdown. Optimized for LLM data preparation, RAG pipelines, and content extraction. 25-40x faster than Python alternatives.
 
 Markout converts HTML documents into well-formatted Markdown using a handler registry pattern. Each HTML element type has a dedicated handler class that processes it. The library automatically strips non-content elements (scripts, styles, navigation) making output ideal for LLM consumption.
+
+## CLI Tool
+
+Markout includes a command-line interface for Unix-style pipelines:
+
+```bash
+# Install
+shards build --production  # or download from releases
+
+# Usage
+curl -s https://example.com | markout                    # stdin to stdout
+markout input.html -o output.md                         # file to file
+markout --heading-style=setext --bullet-char="*" file.html
+```
+
+### CLI Options
+
+- `-o, --output FILE` - Output file (default: stdout)
+- `--heading-style=STYLE` - `atx` or `setext`
+- `--bullet-char=CHAR` - `-`, `*`, or `+`
+- `--link-style=STYLE` - `inline` or `referenced`
+- `--wrap` / `--wrap-width=N` - Text wrapping
+- `--strip-document` / `--no-strip-document` - Document wrapper handling
+- `-h, --help` - Show help
+- `-v, --version` - Show version
+
+### Exit Codes
+
+- `0` - Success
+- `1` - Error (file not found, conversion failed)
+- `2` - Invalid arguments
 
 ## Quick Start
 
@@ -30,6 +61,14 @@ The conversion flow:
 2. `Converter` recursively walks the tree, delegating to appropriate handlers
 3. `Context` tracks state during conversion (nesting depth, list state, references)
 4. Each handler returns the Markdown string for its element
+
+### CLI Architecture
+
+- `src/cli.cr` - CLI class with option parsing using Crystal's `OptionParser`
+- `src/markout_cli.cr` - Entry point that calls `CLI.run(ARGV, STDIN, STDOUT, STDERR)`
+- Exit codes: SUCCESS=0, ERROR=1, INVALID=2
+- Uses IO streams for testability
+- Supports both piped input and file arguments
 
 Key components:
 - `src/markout.cr` - Public API entry point with `convert` overloads
@@ -210,9 +249,17 @@ The smaller output is due to the strip handler removing navigation, sidebars, an
 - Documentation comments on all public types and methods
 - Crystal >= 1.10.0 required
 
+## Release Process
+
+1. Update version in `src/markout.cr` and `shard.yml`
+2. Tag release: `git tag v0.2.0 && git push origin v0.2.0`
+3. GitHub Actions automatically builds binaries for Linux, macOS, Windows
+4. Docker image built and pushed to GHCR
+5. Release notes generated from commits
+
 ## Documentation
 
-- [README.md](README.md): Overview and usage examples
+- [README.md](README.md): Overview, CLI usage, and library examples
 - [CLAUDE.md](CLAUDE.md): AI assistant guidance for working with codebase
 - [llms.txt](llms.txt): This file - comprehensive LLM reference
 

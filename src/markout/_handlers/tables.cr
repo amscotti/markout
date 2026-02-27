@@ -1,4 +1,9 @@
 module Markout::Handlers
+  # Handler for table elements.
+  #
+  # Converts HTML table elements to Markdown table format.
+  # Handles thead, tbody, tfoot, tr, th, and td elements.
+  # Generates proper header separator row.
   class TablesHandler
     include Handler
 

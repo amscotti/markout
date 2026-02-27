@@ -9,8 +9,11 @@ Convert HTML to clean, readable Markdown in Crystal. Designed for content migrat
 - **LLM-ready**: Produces clean markdown ideal for RAG pipelines and context windows
 - **Configurable**: ATX/Setext headings, bullet styles, reference links, and more
 - **Comprehensive**: Tables, nested lists, blockquotes, code blocks, images, links
+- **CLI included**: Command-line tool for Unix-style pipelines
 
 ## Installation
+
+### As a Library
 
 Add the dependency to your `shard.yml`:
 
@@ -26,7 +29,70 @@ Then run:
 shards install
 ```
 
+### CLI Binary
+
+Download pre-built binaries from the [releases page](https://github.com/amscotti/markout/releases) or build from source:
+
+```bash
+shards build --production
+# Binary will be at bin/markout
+```
+
+Or use Docker:
+
+```bash
+docker pull ghcr.io/amscotti/markout:latest
+```
+
 ## Quick Start
+
+### CLI Usage
+
+The `markout` CLI follows Unix philosophy - read from stdin or file, write to stdout or file:
+
+```bash
+# Convert from stdin (pipe)
+curl -s https://example.com | markout > article.md
+
+# Convert file to stdout
+markout input.html
+
+# Convert file to file
+markout input.html -o output.md
+
+# Chain with other tools
+cat page.html | markout | grep "^#" > headings.txt
+```
+
+#### CLI Options
+
+| Flag | Description |
+|------|-------------|
+| `-o, --output FILE` | Output file (default: stdout) |
+| `--heading-style=STYLE` | `atx` (#) or `setext` (underlined) |
+| `--bullet-char=CHAR` | `-`, `*`, or `+` (default: `-`) |
+| `--link-style=STYLE` | `inline` or `referenced` |
+| `--wrap` | Enable text wrapping |
+| `--wrap-width=N` | Wrap width (default: 80) |
+| `--strip-document` | Strip HTML document wrapper (default: true) |
+| `--no-strip-document` | Keep document wrapper |
+| `-h, --help` | Show help |
+| `-v, --version` | Show version |
+
+#### CLI Examples
+
+```bash
+# Fetch HN article and convert
+curl -sL https://amplifying.ai/research/claude-code-picks | markout
+
+# Use Setext headings and asterisk bullets
+markout --heading-style=setext --bullet-char="*" article.html
+
+# Convert with text wrapping
+markout --wrap --wrap-width=80 long-article.html -o output.md
+```
+
+### Library Usage
 
 ```crystal
 require "markout"
@@ -186,6 +252,66 @@ bin/ameba
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+## Building from Source
+
+### Prerequisites
+
+- Crystal >= 1.10.0
+- LLVM (for compilation)
+
+### Build Commands
+
+```bash
+# Install dependencies
+shards install
+
+# Build CLI binary
+shards build --production
+
+# Run tests
+crystal spec
+
+# Run linter
+bin/ameba
+
+# Format code
+crystal tool format
+
+# Generate documentation
+crystal docs
+```
+
+### Cross-Platform Builds
+
+The project includes GitHub Actions workflows for building release binaries:
+
+- Linux (amd64, arm64) - statically linked
+- macOS (amd64, arm64)
+- Windows (amd64)
+
+See `.github/workflows/release.yml` for details.
+
+## Docker
+
+### Using the Image
+
+```bash
+# Pull from GitHub Container Registry
+docker pull ghcr.io/amscotti/markout:latest
+
+# Convert a file
+docker run --rm -v $(pwd):/data ghcr.io/amscotti/markout /data/input.html -o /data/output.md
+
+# Pipe through docker
+curl -s https://example.com | docker run --rm -i ghcr.io/amscotti/markout
+```
+
+### Building the Image
+
+```bash
+docker build -t markout .
+```
 
 ## License
 

@@ -1,5 +1,9 @@
 module Markout
   module Handlers
+    # Handler for horizontal rule elements.
+    #
+    # Converts HTML <hr> elements to Markdown horizontal rules.
+    # Default style is `---` but respects the `hr_style` option.
     class HorizontalRulesHandler
       include Handler
 

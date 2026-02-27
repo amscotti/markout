@@ -1,4 +1,12 @@
 module Markout::Handlers
+  # Handler for code elements (inline and blocks).
+  #
+  # Converts HTML code elements to Markdown:
+  # - <code> inside <pre> → fenced code block
+  # - <code> alone → inline code with backticks
+  # - <pre> → wraps content in code fence
+  #
+  # Respects the `code_fence` option for block delimiters.
   class CodeHandler
     include Handler
 

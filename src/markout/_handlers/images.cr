@@ -1,5 +1,9 @@
 module Markout
   module Handlers
+    # Handler for image elements.
+    #
+    # Converts HTML img elements to Markdown image syntax: ![alt](src "title")
+    # Supports ignore_images? and images_as_html? options.
     class ImagesHandler
       include Handler
 

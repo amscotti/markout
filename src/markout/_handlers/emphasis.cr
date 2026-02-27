@@ -1,5 +1,12 @@
 module Markout
   module Handlers
+    # Handler for emphasis elements (bold and italic).
+    #
+    # Converts HTML emphasis elements to their Markdown equivalents:
+    # - <strong> and <b> → bold (default: **text**)
+    # - <em> and <i> → italic (default: *text*)
+    #
+    # Respects the `ignore_emphasis?`, `strong_char`, and `emphasis_char` options.
     class EmphasisHandler
       include Handler
 
