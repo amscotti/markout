@@ -19,6 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install build dependencies
+        run: apk add --no-cache cmake make gcc g++ git
+
       - name: Install dependencies
         run: shards install --production
 
@@ -55,7 +58,7 @@ jobs:
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
             crystallang/crystal:latest-alpine \
-            sh -c "shards install --production && crystal build src/markout_cli.cr -o markout --release --static --no-debug"
+            sh -c "apk add --no-cache cmake make gcc g++ git && shards install --production && crystal build src/markout_cli.cr -o markout --release --static --no-debug"
 
       - name: Package binary
         run: |
@@ -76,6 +79,9 @@ jobs:
 
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
+
+      - name: Install build dependencies
+        run: brew install cmake
 
       - name: Install dependencies
         run: shards install --production
@@ -103,6 +109,9 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
 
+      - name: Install build dependencies
+        run: brew install cmake
+
       - name: Install dependencies
         run: shards install --production
 
@@ -128,6 +137,9 @@ jobs:
 
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
 
       - name: Install dependencies
         run: shards install --production
