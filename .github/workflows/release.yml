@@ -128,39 +128,10 @@ jobs:
           name: markout-macos-arm64
           path: markout-macos-arm64.tar.gz
 
-  build-windows:
-    name: Build Windows
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Crystal
-        uses: crystal-lang/install-crystal@v1
-
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-
-      - name: Install dependencies
-        run: shards install --production
-
-      - name: Build binary
-        run: crystal build src/markout_cli.cr -o markout.exe --release --no-debug
-
-      - name: Package binary
-        run: |
-          Compress-Archive -Path markout.exe,LICENSE,README.md -DestinationPath markout-windows-amd64.zip
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: markout-windows-amd64
-          path: markout-windows-amd64.zip
-
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [build-linux-amd64, build-linux-arm64, build-macos-amd64, build-macos-arm64, build-windows]
+    needs: [build-linux-amd64, build-linux-arm64, build-macos-amd64, build-macos-arm64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -179,4 +150,3 @@ jobs:
             artifacts/markout-linux-arm64/markout-linux-arm64.tar.gz
             artifacts/markout-macos-amd64/markout-macos-amd64.tar.gz
             artifacts/markout-macos-arm64/markout-macos-arm64.tar.gz
-            artifacts/markout-windows-amd64/markout-windows-amd64.zip
