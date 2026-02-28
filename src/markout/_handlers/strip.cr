@@ -39,12 +39,17 @@ module Markout::Handlers
         :output,
         :progress,
         :meter,
+        :time,       # Date/time metadata - usually not content
+        :figcaption, # Figure captions often duplicate content
+        :figure,     # Figure containers
+        :span,       # Spans are typically for styling, not content
       ]
     end
 
     def convert(node : Lexbor::Node, ctx : Context, converter : Converter) : String
-      # Return empty string - strip these elements entirely
-      ""
+      # Return newline to prevent merging with adjacent content
+      # This ensures stripped block-level elements don't cause concatenation
+      "\n"
     end
   end
 

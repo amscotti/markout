@@ -68,4 +68,26 @@ describe Markout::Handlers::HeadingsHandler do
       convert(html).should eq "# **Important** Title"
     end
   end
+
+  describe "block spacing" do
+    it "adds trailing newlines to separate from following content" do
+      html = "<h1>Title</h1><p>Paragraph</p>"
+      result = convert(html)
+      result.should eq "# Title\n\nParagraph"
+    end
+
+    it "adds trailing newlines to h2" do
+      html = "<h2>Subtitle</h2><p>Text</p>"
+      result = convert(html)
+      result.should eq "## Subtitle\n\nText"
+    end
+
+    it "adds trailing newlines with Setext style" do
+      html = "<h1>Title</h1><p>Para</p>"
+      options = Markout::Options.new
+      options.heading_style = Markout::Options::HeadingStyle::Setext
+      result = convert_with(html, options)
+      result.should eq "Title\n=====\n\nPara"
+    end
+  end
 end

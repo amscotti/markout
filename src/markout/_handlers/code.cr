@@ -33,7 +33,7 @@ module Markout::Handlers
         # Ensure content doesn't end with excessive newlines before fence
         content = content.strip("\n")
 
-        "#{converter.options.code_fence}\n#{content}\n#{converter.options.code_fence}\n"
+        "#{converter.options.code_fence}\n#{content}\n#{converter.options.code_fence}\n\n"
       else
         ""
       end

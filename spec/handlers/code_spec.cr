@@ -20,4 +20,18 @@ describe Markout::Handlers::CodeHandler do
     result.scan("```").size.should eq 2 # Start and end
     result.should contain "def foo\n  bar\nend"
   end
+
+  describe "block spacing" do
+    it "adds trailing newlines after pre block to separate from following content" do
+      html = "<pre>code</pre><p>After</p>"
+      result = convert(html)
+      result.should eq "```\ncode\n```\n\nAfter"
+    end
+
+    it "adds trailing newlines after code block" do
+      html = "<pre><code>example</code></pre><p>Text</p>"
+      result = convert(html)
+      result.should eq "```\nexample\n```\n\nText"
+    end
+  end
 end

@@ -74,4 +74,25 @@ describe Markout::Handlers::ListsHandler do
       result.should eq "- L1\n  - L2\n    - L3"
     end
   end
+
+  describe "block spacing" do
+    it "adds trailing newlines to separate list from following content" do
+      html = "<ul><li>Item</li></ul><p>After</p>"
+      result = convert(html)
+      # List items end with \n, plus \n\n separator = 3 newlines total
+      result.should eq "- Item\n\n\nAfter"
+    end
+
+    it "adds trailing newlines after ordered list" do
+      html = "<ol><li>First</li></ol><p>Text</p>"
+      result = convert(html)
+      result.should eq "1. First\n\n\nText"
+    end
+
+    it "adds trailing newlines after nested list" do
+      html = "<ul><li>Item<ul><li>Nested</li></ul></li></ul><p>Para</p>"
+      result = convert(html)
+      result.should eq "- Item\n  - Nested\n\n\nPara"
+    end
+  end
 end

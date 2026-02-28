@@ -34,4 +34,18 @@ describe Markout::Handlers::BlockquotesHandler do
     result.should contain "> > L2"
     result.should contain "> > > L3"
   end
+
+  describe "block spacing" do
+    it "adds trailing newlines to separate from following content" do
+      html = "<blockquote><p>Quote</p></blockquote><p>After</p>"
+      result = convert(html)
+      result.should eq "> Quote\n\nAfter"
+    end
+
+    it "adds trailing newlines after nested blockquote" do
+      html = "<blockquote>Outer<blockquote>Inner</blockquote></blockquote><p>Text</p>"
+      result = convert(html)
+      result.should eq "> Outer\n> > Inner\n\nText"
+    end
+  end
 end

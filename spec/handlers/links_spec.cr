@@ -6,6 +6,21 @@ describe Markout::Handlers::LinksHandler do
       html = %(<a href="https://example.com">Example</a>)
       convert(html).should eq "[Example](https://example.com)"
     end
+
+    it "skips empty links with no text content" do
+      html = %(<a href="https://example.com"></a>)
+      convert(html).should eq ""
+    end
+
+    it "skips links with only whitespace" do
+      html = %(<a href="https://example.com">   </a>)
+      convert(html).should eq ""
+    end
+
+    it "preserves child content when link has no href" do
+      html = %(<a>No href</a>)
+      convert(html).should eq "No href"
+    end
   end
 
   describe "reference links" do

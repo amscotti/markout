@@ -27,8 +27,8 @@ module Markout::Handlers
             io << "> " << line
           end
         end
-        # Blockquotes are blocks, so ensure newline at end
-        io << "\n"
+        # Blockquotes are blocks, so ensure blank line at end for separation
+        io << "\n\n"
       end
 
       # If we're nested inside another blockquote, add leading newline

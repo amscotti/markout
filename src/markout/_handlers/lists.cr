@@ -38,6 +38,9 @@ module Markout::Handlers
       content = converter.process_children(node, ctx)
       ctx.exit_list
 
+      # Add trailing newlines to separate list from following content
+      content = content + "\n\n"
+
       # If this is a nested list, add leading newline so it starts on its own line
       if is_nested
         "\n" + content

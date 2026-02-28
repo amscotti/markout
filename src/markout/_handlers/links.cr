@@ -19,6 +19,10 @@ module Markout
         return converter.process_children(node, ctx) unless href
 
         text = converter.process_children(node, ctx).strip
+
+        # Skip empty links - no text and no useful child content
+        return "" if text.empty?
+
         title = node["title"]?
 
         case converter.options.link_style

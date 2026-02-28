@@ -16,4 +16,16 @@ describe Markout::Handlers::TablesHandler do
     result.should contain "|---|---|"
     result.should contain "| D1 | D2 |"
   end
+
+  describe "block spacing" do
+    it "adds trailing newlines after table to separate from following content" do
+      html = "<table><tr><td>Cell</td></tr></table><p>After</p>"
+      result = convert(html)
+      result.should contain "| Cell |"
+      result.should contain "|---|"
+      result.should contain "After"
+      # Should have blank line separator (2 newlines added by handler)
+      result.should match(/\|---\|\s+After/)
+    end
+  end
 end

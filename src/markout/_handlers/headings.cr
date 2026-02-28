@@ -18,16 +18,19 @@ module Markout
         level = heading_level(node)
         text = converter.process_children(node, ctx).strip
 
-        case converter.options.heading_style
-        in .atx?
-          "#" * level + " #{text}"
-        in .setext?
-          if level <= 2
-            "#{text}\n#{underline(level, text.size)}"
-          else
-            "#" * level + " #{text}"
-          end
-        end
+        heading = case converter.options.heading_style
+                  in .atx?
+                    "#" * level + " #{text}"
+                  in .setext?
+                    if level <= 2
+                      "#{text}\n#{underline(level, text.size)}"
+                    else
+                      "#" * level + " #{text}"
+                    end
+                  end
+
+        # Add trailing newlines to separate from following content
+        heading + "\n\n"
       end
 
       private def heading_level(node : Lexbor::Node) : Int32

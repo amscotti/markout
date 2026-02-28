@@ -17,7 +17,7 @@ module Markout::Handlers
         ctx.enter_table
         content = converter.process_children(node, ctx)
         ctx.exit_table
-        content + "\n"
+        content + "\n\n"
       when :tr
         handle_row(node, ctx, converter)
       when :td, :th

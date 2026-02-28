@@ -64,11 +64,55 @@ module Markout
     # Returns: String containing concatenated Markdown for all children
     def process_children(node : Lexbor::Node, ctx : Context) : String
       result = String.build do |io|
+        prev_was_inline = false
+
         node.children.each do |child|
-          io << process_node(child, ctx)
+          output = process_node(child, ctx)
+
+          # Check if we need to add a space between inline element and text
+          if prev_was_inline && needs_leading_space?(child, output)
+            io << " "
+          end
+
+          io << output
+          prev_was_inline = inline_element?(child)
         end
       end
       result
+    end
+
+    # Check if a node is an inline element that might need trailing space.
+    private def inline_element?(node : Lexbor::Node) : Bool
+      case node.tag_sym
+      when :strong, :b, :em, :i, :a, :code, :del, :s, :strike, :img, :span
+        true
+      else
+        false
+      end
+    end
+
+    # Check if the current node/output needs a leading space after an inline element.
+    private def needs_leading_space?(node : Lexbor::Node, output : String) : Bool
+      return false if output.empty?
+
+      first_char = output[0]
+      return false if first_char.ascii_whitespace?
+      return false if punctuation?(first_char)
+
+      # Only text nodes need this special handling
+      # We don't add space between inline elements (e.g., **Bold***italic*)
+      node.tag_sym == :_text
+    end
+
+    # Check if a character is punctuation that shouldn't have space before it.
+    private def punctuation?(char : Char) : Bool
+      # Common punctuation that should not have space before it
+      case char
+      when '.', ',', '!', '?', ';', ':', ')', ']', '}', '"', "'", '-', '–', '—'
+        true
+      else
+        false
+      end
     end
 
     # Add a reference link to the context for reference-style output.
