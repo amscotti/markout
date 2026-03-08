@@ -6,6 +6,11 @@ describe Markout::Handlers::CodeHandler do
     convert(html).should eq "`def foo; end`"
   end
 
+  it "uses a longer fence when inline code contains backticks" do
+    html = "<code>puts(`hi`)</code>"
+    convert(html).should eq "``puts(`hi`)``"
+  end
+
   it "converts pre block" do
     html = "<pre>def foo\n  bar\nend</pre>"
     result = convert(html)
@@ -19,6 +24,14 @@ describe Markout::Handlers::CodeHandler do
     # Should only have one set of fences
     result.scan("```").size.should eq 2 # Start and end
     result.should contain "def foo\n  bar\nend"
+  end
+
+  it "respects custom code fence option" do
+    html = "<pre><code>puts 1</code></pre>"
+    options = Markout::Options.new
+    options.code_fence = "~~~"
+
+    convert_with(html, options).should eq "~~~\nputs 1\n~~~"
   end
 
   describe "block spacing" do

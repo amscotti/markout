@@ -23,7 +23,8 @@ module Markout
         title = node["title"]?
 
         if title && converter.options.default_link_title?
-          "![#{alt}](#{src} \"#{title}\")"
+          escaped_title = converter.escape_title(title)
+          "![#{alt}](#{src} \"#{escaped_title}\")"
         else
           "![#{alt}](#{src})"
         end

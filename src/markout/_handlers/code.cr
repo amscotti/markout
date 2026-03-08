@@ -23,7 +23,7 @@ module Markout::Handlers
         else
           # Inline code
           content = node.tag_text || ""
-          "`#{content}`"
+          format_inline_code(content)
         end
       when :pre
         ctx.in_code_block = true
@@ -37,6 +37,34 @@ module Markout::Handlers
       else
         ""
       end
+    end
+
+    private def format_inline_code(content : String) : String
+      fence_length = longest_backtick_run(content) + 1
+      fence = "`" * fence_length
+      padded_content = if content.starts_with?('`') || content.ends_with?('`')
+                         " #{content} "
+                       else
+                         content
+                       end
+
+      "#{fence}#{padded_content}#{fence}"
+    end
+
+    private def longest_backtick_run(content : String) : Int32
+      max_run = 0
+      current_run = 0
+
+      content.each_char do |char|
+        if char == '`'
+          current_run += 1
+          max_run = current_run if current_run > max_run
+        else
+          current_run = 0
+        end
+      end
+
+      max_run
     end
   end
 

@@ -21,7 +21,9 @@ module Markout::Handlers
       when :tr
         handle_row(node, ctx, converter)
       when :td, :th
-        " " + converter.process_children(node, ctx).strip + " |"
+        cell_content = converter.process_children(node, ctx).strip
+        cell_content = cell_content.gsub("|", "\\|").gsub(/[\r\n]+/, " ")
+        " #{cell_content} |"
       when :thead, :tbody, :tfoot
         converter.process_children(node, ctx)
       else
@@ -44,9 +46,9 @@ module Markout::Handlers
 
       if !ctx.current_table_header_printed?
         # Generate separator
-        # Count columns by counting pipes in content
-        # content is like " Cell 1 | Cell 2 |"
-        cols = content.count('|')
+        # Count columns by counting td/th elements
+        cols = node.children.count { |child| child.tag_sym == :td || child.tag_sym == :th }
+        cols = 1 if cols == 0 # Fallback for malformed tables
 
         # Build separator |---|---|
         separator = "|" + ("---|" * cols) + "\n"

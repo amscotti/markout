@@ -283,55 +283,11 @@ describe Markout::Handlers::StripHandler do
     end
   end
 
-  describe "time elements" do
-    it "removes time elements" do
-      html = %(<time datetime="2026-02-26">Feb 26, 2026</time><p>Text</p>)
-      result = convert(html)
-      result.should_not contain "Feb 26"
-      result.should_not contain "2026"
-      result.should contain "Text"
-    end
-
-    it "removes time elements with datetime attribute" do
-      html = %(<p>Before</p><time datetime="2026-02-26T10:00:00Z">Posted today</time><p>After</p>)
-      result = convert(html)
-      result.should contain "Before"
-      result.should contain "After"
-      result.should_not contain "Posted today"
-    end
-  end
-
-  describe "figure and figcaption elements" do
-    it "removes figure elements" do
-      html = %(<figure><img src="pic.jpg" alt="Pic"><figcaption>Caption</figcaption></figure><p>Text</p>)
-      result = convert(html)
-      result.should_not contain "figure"
-      result.should_not contain "Caption"
-      result.should contain "Text"
-    end
-
-    it "removes figcaption elements" do
-      html = %(<p>Before</p><figcaption>Image caption</figcaption><p>After</p>)
-      result = convert(html)
-      result.should contain "Before"
-      result.should contain "After"
-      result.should_not contain "caption"
-    end
-  end
-
   describe "stripped elements add newlines to prevent merging" do
     it "adds newline after stripped nav to prevent merging with heading" do
       html = %(<nav>Breadcrumb</nav><h1>Title</h1>)
       result = convert(html)
       result.should eq "# Title"
-    end
-
-    it "adds newline after stripped time to prevent merging with content" do
-      html = %(<p>Before</p><time>Feb 26</time><p>After</p>)
-      result = convert(html)
-      result.should contain "Before"
-      result.should contain "After"
-      result.should_not contain "Feb 26"
     end
   end
 

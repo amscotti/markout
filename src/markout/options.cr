@@ -13,13 +13,6 @@ module Markout
       Referenced # [text][1] ... [1]: url
     end
 
-    # Subscript/superscript handling enum.
-    enum SubSupStyle
-      Ignore # Strip <sub>/<sup> tags (default)
-      Raw    # Keep HTML tags
-      Caret  # ^sup^ ~sub~ notation
-    end
-
     # Newline style enum for <br> element conversion.
     enum NewlineStyle
       Spaces    # Two spaces + \n (default)
@@ -46,19 +39,9 @@ module Markout
 
     property? default_link_title : Bool = false
 
-    property strip_tags : Array(String) = [] of String
-
-    property convert_only : Array(String)? = nil
-
     property strikethrough_char : String = "~~"
 
-    property sub_sup_style : SubSupStyle = SubSupStyle::Ignore
-
     property newline_style : NewlineStyle = NewlineStyle::Spaces
-
-    property? wrap : Bool = false
-
-    property wrap_width : Int32 = 80
 
     property? strip_document : Bool = true
 
@@ -69,28 +52,6 @@ module Markout
 
     property? ignore_emphasis : Bool = false
 
-    property? ignore_tables : Bool = false
-
     property? images_as_html : Bool = false
-
-    property? tables_as_html : Bool = false
-
-    property? preserve_unknown_tags : Bool = false
-
-    property? escape_all : Bool = false
-
-    property? escape_misc : Bool = true
-
-    property body_width : Int32 = 0
-
-    property list_indent : Int32 = 2
-
-    property? single_line_break : Bool = false
-
-    property? google_doc_mode : Bool = false
-
-    property? unicode_snob : Bool = false
-
-    property? decode_entities : Bool = true
   end
 end

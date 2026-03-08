@@ -30,7 +30,8 @@ module Markout
           if converter.options.autolinks? && text == href
             "<#{href}>"
           elsif title && converter.options.default_link_title?
-            "[#{text}](#{href} \"#{title}\")"
+            escaped_title = converter.escape_title(title)
+            "[#{text}](#{href} \"#{escaped_title}\")"
           else
             "[#{text}](#{href})"
           end

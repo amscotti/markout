@@ -14,6 +14,17 @@ describe Markout::CLI do
       output.to_s.strip.should eq("# Hello")
     end
 
+    it "converts HTML from stdin by default when no file is given" do
+      input = IO::Memory.new("<h1>Hello</h1>")
+      output = IO::Memory.new
+      error = IO::Memory.new
+
+      exit_code = Markout::CLI.run([] of String, input, output, error)
+
+      exit_code.should eq(0)
+      output.to_s.strip.should eq("# Hello")
+    end
+
     it "converts HTML from file" do
       input = IO::Memory.new
       output = IO::Memory.new
@@ -93,6 +104,21 @@ describe Markout::CLI do
         File.delete(tempfile) if File.exists?(tempfile)
       end
     end
+
+    it "returns an error when output file cannot be written" do
+      input = IO::Memory.new("<h3>File Output</h3>")
+      output = IO::Memory.new
+      error = IO::Memory.new
+
+      output_root = File.tempname("markout-missing-dir")
+      output_path = File.join(output_root, "output.md")
+
+      exit_code = Markout::CLI.run(["-", "--output", output_path], input, output, error)
+
+      exit_code.should eq(1)
+      output.to_s.should be_empty
+      error.to_s.should contain("Cannot write output")
+    end
   end
 
   describe "option flags" do
@@ -128,22 +154,6 @@ describe Markout::CLI do
 
       exit_code.should eq(0)
       output.to_s.should match(/\[Link\]\[\d+\]/)
-    end
-
-    it "applies --wrap flag" do
-      # Create a long paragraph that would need wrapping
-      long_text = "A" * 100
-      input = IO::Memory.new("<p>#{long_text}</p>")
-      output = IO::Memory.new
-      error = IO::Memory.new
-
-      exit_code = Markout::CLI.run(["-", "--wrap", "--wrap-width=40"], input, output, error)
-
-      exit_code.should eq(0)
-      result = output.to_s
-      # With wrapping enabled, output should contain newlines
-      # The exact output depends on implementation, but it should be different
-      result.size.should be > 0
     end
 
     it "rejects invalid heading style" do

@@ -30,5 +30,15 @@ describe Markout do
     it "handles empty input" do
       Markout.convert("").should eq ""
     end
+
+    it "preserves trailing block spacing when strip_document is disabled" do
+      options = Markout::Options.new
+      options.strip_document = false
+
+      result = Markout.convert("<p>This is a paragraph.</p>", options)
+
+      result.should contain("This is a paragraph.")
+      result.should end_with("\n\n")
+    end
   end
 end

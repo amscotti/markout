@@ -84,7 +84,13 @@ module Markout
       end
 
       # Write output
-      write_output(markdown)
+      begin
+        write_output(markdown)
+      rescue ex : IO::Error | File::Error
+        @error.puts "Error: Cannot write output - #{ex.message}"
+        return EXIT_ERROR
+      end
+
       EXIT_SUCCESS
     end
 
@@ -94,7 +100,7 @@ module Markout
           markout #{Markout::VERSION} - Convert HTML to Markdown
 
           Usage: markout [options] [file|-]
-                 cat file.html | markout [options] -
+                 cat file.html | markout [options]
 
           Arguments:
             file    Input HTML file (default: read from stdin)
@@ -132,15 +138,6 @@ module Markout
           else
             raise OptionParser::InvalidOption.new("Invalid link style: #{style}")
           end
-        end
-
-        parser.on("--wrap", "Enable text wrapping") do
-          @options.wrap = true
-        end
-
-        parser.on("--wrap-width=N", "Wrap width (default: 80)") do |width|
-          @options.wrap_width = width.to_i? || raise(OptionParser::InvalidOption.new("Invalid wrap width: #{width}"))
-          @options.wrap = true
         end
 
         parser.on("--strip-document", "Strip HTML document wrapper (default: true)") do
@@ -187,8 +184,9 @@ module Markout
           end
         end
       else
-        # No input provided
-        nil
+        # Default to stdin when no input file is provided
+        content = @input.gets_to_end
+        content.empty? ? nil : content
       end
     end
 
