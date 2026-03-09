@@ -28,7 +28,11 @@ module Markout
       if !ctx.references.empty?
         result += "\n\n"
         ctx.references.each do |id, ref|
-          title_part = ref.title ? " \"#{ref.title}\"" : ""
+          title_part = if title = ref.title
+                         " \"#{escape_title(title)}\""
+                       else
+                         ""
+                       end
           result += "[#{id}]: #{ref.url}#{title_part}\n"
         end
       end
@@ -81,6 +85,11 @@ module Markout
       result
     end
 
+    # Escape characters in a title used in Markdown links or images.
+    def escape_title(title : String) : String
+      title.gsub('\\', "\\\\").gsub('"', "\\\"")
+    end
+
     # Check if a node is an inline element that might need trailing space.
     private def inline_element?(node : Lexbor::Node) : Bool
       case node.tag_sym
@@ -113,19 +122,6 @@ module Markout
       else
         false
       end
-    end
-
-    # Add a reference link to the context for reference-style output.
-    # Returns the reference ID.
-    #
-    # Parameters:
-    # - `url`: The link URL
-    # - `title`: Optional link title
-    #
-    # Returns: Int32 reference ID
-    def add_reference(url : String, title : String? = nil) : Int32
-      # Delegate to context - this is a convenience method
-      raise "Reference links require a context with reference tracking"
     end
   end
 end

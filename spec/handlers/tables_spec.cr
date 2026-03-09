@@ -17,6 +17,14 @@ describe Markout::Handlers::TablesHandler do
     result.should contain "| D1 | D2 |"
   end
 
+  it "escapes pipe characters and replaces newlines in cells" do
+    html = "<table><tr><th>Name | Title</th><th>Value</th></tr><tr><td>A\nB</td><td>x | y</td></tr></table>"
+    result = convert(html)
+    result.should contain "| Name \\| Title | Value |"
+    result.should contain "|---|---|"
+    result.should contain "| A B | x \\| y |"
+  end
+
   describe "block spacing" do
     it "adds trailing newlines after table to separate from following content" do
       html = "<table><tr><td>Cell</td></tr></table><p>After</p>"

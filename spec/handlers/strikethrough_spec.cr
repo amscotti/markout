@@ -15,4 +15,12 @@ describe Markout::Handlers::StrikethroughHandler do
     html = "<strike>deleted</strike>"
     convert(html).should eq "~~deleted~~"
   end
+
+  it "respects custom strikethrough characters" do
+    html = "<del>deleted</del>"
+    options = Markout::Options.new
+    options.strikethrough_char = "~~!"
+
+    convert_with(html, options).should eq "~~!deleted~~!"
+  end
 end

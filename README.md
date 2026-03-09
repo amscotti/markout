@@ -72,8 +72,6 @@ cat page.html | markout | grep "^#" > headings.txt
 | `--heading-style=STYLE` | `atx` (#) or `setext` (underlined) |
 | `--bullet-char=CHAR` | `-`, `*`, or `+` (default: `-`) |
 | `--link-style=STYLE` | `inline` or `referenced` |
-| `--wrap` | Enable text wrapping |
-| `--wrap-width=N` | Wrap width (default: 80) |
 | `--strip-document` | Strip HTML document wrapper (default: true) |
 | `--no-strip-document` | Keep document wrapper |
 | `-h, --help` | Show help |
@@ -87,9 +85,6 @@ curl -sL https://amplifying.ai/research/claude-code-picks | markout
 
 # Use Setext headings and asterisk bullets
 markout --heading-style=setext --bullet-char="*" article.html
-
-# Convert with text wrapping
-markout --wrap --wrap-width=80 long-article.html -o output.md
 ```
 
 ### Library Usage
@@ -215,14 +210,15 @@ results = docs.map { |html| converter.convert(html) }
 
 ## Performance
 
-Benchmarks against Python's markdownify (210KB Wikipedia page):
+Benchmarks against Python's `markdownify` and `html2text` (599KB Wikipedia page):
 
 | Library | Time | Output Size |
 |---------|------|-------------|
-| **Markout** | 2.2ms | 47KB |
-| markdownify | 61ms | 65KB |
+| **Markout** | 7.5ms | 166KB |
+| html2text | 83ms | 204KB |
+| markdownify | 203ms | 210KB |
 
-Markout is **28x faster** and produces **28% smaller** output by stripping non-content elements.
+Markout is typically **10-30x faster** than Python alternatives and produces **20-30% smaller** output by stripping non-content elements. Reproducible scripts can be found in the `benchmarks/` directory.
 
 ## Use Cases
 

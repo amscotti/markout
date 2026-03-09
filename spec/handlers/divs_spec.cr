@@ -11,7 +11,7 @@ describe Markout::Handlers::DivsHandler do
       result.should match(/Feb 26, 2026\s+Paragraph/)
     end
 
-    it "adds newlines after div with spans (breadcrumbs)" do
+    it "preserves span content in div" do
       html = %(
         <div>
           <span>Announcements</span>
@@ -19,8 +19,9 @@ describe Markout::Handlers::DivsHandler do
         </div>
         <h1>Title</h1>)
       result = Markout.convert(html)
-      # Spans are stripped, div should be empty and skipped
-      result.should eq "# Title"
+      result.should contain "Announcements"
+      result.should contain "Policy"
+      result.should contain "# Title"
     end
 
     it "handles div with block elements inside" do

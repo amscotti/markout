@@ -7,7 +7,7 @@ require "./markout/converter"
 require "./markout/_handlers/*"
 
 module Markout
-  VERSION = "0.2.0"
+  VERSION = "0.3.0"
 
   # Convert HTML string to Markdown using default options.
   def self.convert(html : String) : String

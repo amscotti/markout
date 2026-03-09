@@ -24,7 +24,6 @@ markout --heading-style=setext --bullet-char="*" file.html
 - `--heading-style=STYLE` - `atx` or `setext`
 - `--bullet-char=CHAR` - `-`, `*`, or `+`
 - `--link-style=STYLE` - `inline` or `referenced`
-- `--wrap` / `--wrap-width=N` - Text wrapping
 - `--strip-document` / `--no-strip-document` - Document wrapper handling
 - `-h, --help` - Show help
 - `-v, --version` - Show version
@@ -130,7 +129,6 @@ property heading_style : HeadingStyle = HeadingStyle::ATX  # or Setext
 
 # List formatting
 property bullet_char : Char = '-'      # or '*'
-property list_indent : Int32 = 2
 
 # Emphasis formatting
 property emphasis_char : Char = '*'    # or '_'
@@ -153,19 +151,11 @@ property ignore_images : Bool = false
 property images_as_html : Bool = false  # Keep <img> as raw HTML
 
 # Table handling
-property ignore_tables : Bool = false
-property tables_as_html : Bool = false  # Keep tables as raw HTML
-
-# Content filtering
-property strip_tags : Array(String) = [] of String
-property convert_only : Array(String)? = nil
+# (Default formatting applies)
 
 # Whitespace
 property strip_document : Bool = true   # Trim leading/trailing whitespace
 property newline_style : NewlineStyle = NewlineStyle::Spaces  # or Backslash
-property wrap : Bool = false
-property wrap_width : Int32 = 80
-property single_line_break : Bool = false
 ```
 
 ## Adding a New Handler
@@ -234,10 +224,11 @@ crystal docs            # Generate documentation
 
 ## Performance Characteristics
 
-Benchmarks vs Python markdownify on 210KB Wikipedia HTML:
-- Markout: 2.2ms, 47KB output
-- markdownify: 61ms, 65KB output
-- Result: 28x faster, 28% smaller output
+Benchmarks vs Python alternatives on 599KB Wikipedia HTML:
+- Markout: 7.5ms, 166KB output
+- html2text: 83ms, 204KB output
+- markdownify: 203ms, 210KB output
+- Result: 10-30x faster, 20-30% smaller output
 
 The smaller output is due to the strip handler removing navigation, sidebars, and UI elements that aren't article content.
 
@@ -252,7 +243,7 @@ The smaller output is due to the strip handler removing navigation, sidebars, an
 ## Release Process
 
 1. Update version in `src/markout.cr` and `shard.yml`
-2. Tag release: `git tag v0.2.0 && git push origin v0.2.0`
+2. Tag release: `git tag v0.3.0 && git push origin v0.3.0`
 3. GitHub Actions automatically builds binaries for Linux, macOS, Windows
 4. Docker image built and pushed to GHCR
 5. Release notes generated from commits

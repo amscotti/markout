@@ -27,6 +27,8 @@ module Markout
       url : String,
       title : String? = nil
 
+    @reference_ids : Hash(Reference, Int32) = {} of Reference => Int32
+
     # List state tracking
     class ListState
       property type : Symbol # :ul or :ol
@@ -119,8 +121,13 @@ module Markout
     # Returns: Int32 reference ID
     def add_reference(url : String, title : String? = nil) : Int32
       ref = Reference.new(url, title)
-      @references[@next_ref_id] = ref
+      if id = @reference_ids[ref]?
+        return id
+      end
+
       id = @next_ref_id
+      @references[id] = ref
+      @reference_ids[ref] = id
       @next_ref_id += 1
       id
     end

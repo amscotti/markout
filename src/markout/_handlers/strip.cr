@@ -39,10 +39,6 @@ module Markout::Handlers
         :output,
         :progress,
         :meter,
-        :time,       # Date/time metadata - usually not content
-        :figcaption, # Figure captions often duplicate content
-        :figure,     # Figure containers
-        :span,       # Spans are typically for styling, not content
       ]
     end
 
